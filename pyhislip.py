@@ -405,8 +405,21 @@ class _HiSLIP():
             raw_header = sock.recv(16)
             header = self._split_hislip_header(raw_header)
             if header['payload_length'] > 0:
-                raw_data = sock.recv(self.MAXIMUM_MESSAGE_SIZE)
-                data = self._read_hislip_data(raw_data, header['message_type'])
+                #raw_data = sock.recv(self.MAXIMUM_MESSAGE_SIZE)                
+                raw_data = sock.recv(1024)
+                continue_recv = True
+                while continue_recv:
+                    try:
+                        # Try to receive more data
+                        newdata = sock.recv(1024)
+                        strdata = newdata.decode('utf-8')
+                        if strdata[-1] == "\n":
+                            continue_recv = False
+                        raw_data += newdata
+                    except:
+                        continue_recv = False     
+                                        
+                data = self._read_hislip_data(raw_data, header['message_type'])                
                 # data = raw_data.decode()
             else:
                 data = str()
