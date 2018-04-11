@@ -510,7 +510,7 @@ class HiSLIP(_HiSLIP):
         header = self._read_hislip_message(self.async_channel, self.message_types['AsyncInitializeResponse'])[0]
 
         ''' Set work parameters '''
-        self.message_id = struct.unpack('>I', b'\xff\xff\xff\x00')[0]
+        self.message_id = struct.unpack('>I', b'\x00\x00\x00\x00')[0]
         self.most_recent_message_id = self.message_id
         self.rmt_delivered = False
 
@@ -648,7 +648,7 @@ class HiSLIP(_HiSLIP):
 
         self.overlap_mode = feature_setting
 
-        self.message_id = struct.unpack('>I', b'\xff\xff\xff\x00')[0]
+        self.message_id = struct.unpack('>I', b'\x00\x00\x00\x00')[0]
 
     def trigger_message(self):
         ''' This method emulate a GPIB Group Execute Trigger '''
