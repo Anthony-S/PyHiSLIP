@@ -406,16 +406,13 @@ class _HiSLIP():
             header = self._split_hislip_header(raw_header)
             if header['payload_length'] > 0:
                 #raw_data = sock.recv(self.MAXIMUM_MESSAGE_SIZE)                
-                raw_data = sock.recv(1024)
+                chunck_size = 1024
+                raw_data = sock.recv(min(header['payload_length'], chunck_size))
                 continue_recv = True
-                while continue_recv:
+                while continue_recv and len(raw_data) < header['payload_length']:
                     try:
-                        # Try to receive more data
-                        newdata = sock.recv(1024)
-                        strdata = newdata.decode('utf-8')
-                        if strdata[-1] == "\n":
-                            continue_recv = False
-                        raw_data += newdata
+                        # Try to receive some more data
+                        raw_data += sock.recv(min(header['payload_length'] - len(raw_data), chunck_size))
                     except:
                         continue_recv = False     
                                         
