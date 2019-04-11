@@ -142,6 +142,7 @@ class _HiSLIP():
         error_codes.append('Message too large')  # 4
         # 5..127 reserved for HiSLIP extensions
         # 128..255 Device-defined errors
+        return error_codes
 
     def _create_hislip_message(self, message_type, control_code=0, message_parameter=0, data=''):
         '''
@@ -542,13 +543,13 @@ class HiSLIP(_HiSLIP):
 
         return mav, status
 
-    def _wait_for_answer(self):
+    def _wait_for_answer(self, wait_time = 180):
         ''' '''
         mav = 0
         from time import time
         start_time = time()
         timeout = time() - start_time
-        while not mav and timeout < 180:
+        while not mav and timeout < wait_time:
             mav = self.status_query()[0]
             timeout = time() - start_time
 
@@ -579,14 +580,17 @@ class HiSLIP(_HiSLIP):
             self.most_recent_message_id = self.message_id
             self.message_id = self.message_id + 2
 
-    def ask(self, data_str):
+    def ask(self, data_str, wait_time = 1):
         ''' Method send query to server and read answer '''
+        ''' It seems that frequently the VNA responds to status queries 
+            by saying the data isn't ready when it actually is - so
+            default to a short wait time and just check for a message after '''
 
         # send request
         self.write(data_str)
 
         # we should wait till the time when information from device will be ready.
-        self._wait_for_answer()
+        self._wait_for_answer(wait_time)
 
         # read and analyze answer
         full_data = str()
